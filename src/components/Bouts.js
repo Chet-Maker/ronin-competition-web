@@ -77,7 +77,7 @@ const Bouts = () => {
 
   useEffect(() => {
     const filter = searchOpponent ? athletes.filter((athlete) =>
-      athlete.athleteId !== athleteId &&
+      athlete.athleteId != athleteId &&
       (athlete.username.toLowerCase().includes(searchOpponent.toLowerCase()) ||
        athlete.firstName.toLowerCase().includes(searchOpponent.toLowerCase()) ||
        athlete.lastName.toLowerCase().includes(searchOpponent.toLowerCase()))
@@ -153,9 +153,9 @@ const Bouts = () => {
     });
     };
 
-    const handleCancelBout = async (boutId) => {
+    const handleCancelBout = async (boutId, challengerId) => {
     try {
-        const response = await axios.put(`https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/cancelBout/${boutId}/${athleteId}`);
+        const response = await axios.put(`https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/cancelBout/${boutId}/${challengerId}`);
         if (response.status === 200) {
             fetchBouts(); // Refresh bout list after cancelling a bout
         }
@@ -276,22 +276,64 @@ const Bouts = () => {
                 Propose Bout
         </button>
       <div className="pending-bouts">
-        <h2>Pending Bouts</h2>
+        {pendingBouts && <p className='pending-bout-title'>Pending Bouts</p>}
         {pendingBouts?.map((bout, index) => (
           <div key={index} className="bout-card">
-            <p>Bout vs. {bout.opponentName}</p>
-            <button onClick={() => acceptBout(bout.boutId)}>Accept</button>
-            <button onClick={() => declineBout(bout.boutId)}>Decline</button>
+            {console.log("athleteId: " + athleteId + " bout.challengerId: " + bout.challengerId + " bout.acceptorId: " + bout.acceptorId)}
+            {athleteId == bout.challengerId && (
+                <div>
+                <p>Awaiting Bout Acceptance</p>
+                <p>Bout: {bout.boutId}</p>
+                <p>vs. {bout.acceptorFirstName} {bout.acceptorLastName}</p>
+                <button onClick={() => handleCancelBout(bout.boutId, bout.challengerId)}>Cancel</button>
+                </div>
+            )}
+            {athleteId == bout.acceptorId && (
+                <div>
+                    <p>Bout: {bout.boutId}</p>
+                    <p>vs. {bout.challengerFirstName} {bout.challengerLastName}</p>
+                    <button onClick={() => acceptBout(bout.boutId)}>Accept</button>
+                    <button onClick={() => declineBout(bout.boutId)}>Decline</button>
+                </div>
+            )}
+            {athleteId == bout.refereeId && (
+                <p>Awaiting Bout Acceptance</p>
+            )}
           </div>
         ))}
       </div>
       {/* List of incomplete bouts, awaiting actions */}
       <div className="incomplete-bouts">
-        <h2>Incomplete Bouts</h2>
+        {incompleteBouts && <p className='incomplete-bout-title'>Incomplete Bouts</p>}
         {incompleteBouts?.map((bout, index) => (
           <div key={index} className="bout-card">
             <p>Bout vs. {bout.opponentName}, awaiting decision</p>
             {/* Assuming a role to complete bout, e.g., as referee */}
+            {athleteId === bout.challengerId && (
+                <div>
+                <p>Awaiting Outcome</p>
+                <p>Bout: {bout.boutId}</p>
+                <p>vs. {bout.acceptorFirstName} {bout.acceptorLastName}</p>
+                <button onClick={() => handleCancelBout(bout.boutId, bout.challengerId)}>Cancel</button>
+                </div>
+            )}
+            {athleteId === bout.acceptorId && (
+                <div>
+                <p>Awaiting Outcome</p>
+                <p>Bout: {bout.boutId}</p>
+                <p>vs. {bout.challengerFirstName} {bout.challengerLastName}</p>
+                <button onClick={() => handleCancelBout(bout.boutId, bout.challengerId)}>Cancel</button>
+                </div>
+            )}
+            {athleteId === bout.refereeId && (
+                <div>
+                    Winner: 
+                    <button className="decision-athlete" onClick={() => completeBout(bout.boutId, bout.challengerId, bout.acceptorId, bout.styleId, false)}>bout.challengerFirstName bout.challengerLastName</button>
+                    <button className="decision-athlete" onClick={() => completeBout(bout.boutId, bout.acceptorId, bout.challengerId, bout.styleId, false)}>bout.acceptorFirstName bout.acceptorLastName</button>
+                    <button onClick={() => completeBout(bout.boutId, bout.challengerId, bout.acceptorId, bout.styleId, true)}>Draw</button>
+                    <button onClick={() => handleCancelBout(bout.boutId, bout.challengerId)}>Cancel</button>
+                </div>
+            )}
             <button onClick={() => completeBout(bout.boutId, true)}>Mark Complete</button>
           </div>
         ))}
