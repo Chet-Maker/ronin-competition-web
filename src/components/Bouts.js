@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './Component.css'; 
 
@@ -12,6 +12,25 @@ const Bouts = () => {
     const [selectedStyle, setSelectedStyle] = useState(null);
     const [pendingBouts, setPendingBouts] = useState(null);
     const [incompleteBouts, setIncompleteBouts] = useState(null);
+    const [filteredAthletes, setFilteredAthletes] = useState([]);
+    const [filteredReferees, setFilteredReferees] = useState([]);
+    const searchRef = useRef(null);
+    const dropdownRef = useRef(null);
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target) ||
+            searchRef.current && !searchRef.current.contains(event.target)) {
+            setSearchOpponent("");
+            setSearchReferee("");
+            }
+        };
+
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutside, true);
+        return () => {
+            document.removeEventListener("click", handleClickOutside, true);
+        };
+    }, []);
 
   const athleteId = localStorage.getItem('athleteId');
 
@@ -20,9 +39,11 @@ const Bouts = () => {
       try {
         const athletesResponse = await axios.get("https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/getAllAthletes");
         setAthletes(athletesResponse.data);
-
-        const stylesResponse = await axios.get("https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/styles");
-        setStyles(stylesResponse.data);
+        if (!opponent) {
+            const stylesResponse = await axios.get("https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/styles");
+            console.log("after first call: ", stylesResponse.data)
+            setStyles(stylesResponse.data);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -31,25 +52,22 @@ const Bouts = () => {
   }, []);
 
   useEffect(() => {
-    const fetchStyles = async () => {
       if (opponent) {
         const opponentId = opponent.athleteId;
-        const response = await axios.get(
+        console.log("Opponent id: " + opponentId + " and athlete Id: " + athleteId)
+        const response = axios.get(
           `https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/getCommonStyles/${opponentId}/${athleteId}`
         ).then((response) => {
+            console.log("after SECOND call: ", response.data)
           setStyles(response.data);
         })
     };
-    fetchStyles();
-  }}, [opponent]);
+  }, [opponent]);
 
-  // Handle fetching bouts specific to the logged-in athlete
   const fetchBouts = async () => {
-    // You need to adjust the endpoints to match your API's bout fetching logic
     try {
       const pendingResponse = await axios.get(`https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/getPendingBouts/${athleteId}`);
       setPendingBouts(pendingResponse.data);
-
       const incompleteResponse = await axios.get(`https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/getIncompleteBouts/${athleteId}`);
       setIncompleteBouts(incompleteResponse.data);
     } catch (error) {
@@ -57,16 +75,25 @@ const Bouts = () => {
     }
   };
 
-  const filteredAthletes = (searchValue) => {
-    const ahletesFiltered = athletes.filter(
-      (athlete) =>
-        athlete?.athleteId !== athleteId &&
-        (athlete.username.toLowerCase().includes(searchValue.toLowerCase()) ||
-          athlete.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-          athlete.lastName.toLowerCase().includes(searchValue.toLowerCase()))
-    );
-    return ahletesFiltered;
-  };
+  useEffect(() => {
+    const filter = searchOpponent ? athletes.filter((athlete) =>
+      athlete.athleteId !== athleteId &&
+      (athlete.username.toLowerCase().includes(searchOpponent.toLowerCase()) ||
+       athlete.firstName.toLowerCase().includes(searchOpponent.toLowerCase()) ||
+       athlete.lastName.toLowerCase().includes(searchOpponent.toLowerCase()))
+    ) : athletes;
+    setFilteredAthletes(filter);
+  }, [searchOpponent, athletes]);
+
+  useEffect(() => {
+    const filter = searchReferee ? athletes.filter((athlete) =>
+      athlete.athleteId !== athleteId &&
+      (athlete.username.toLowerCase().includes(searchReferee.toLowerCase()) ||
+       athlete.firstName.toLowerCase().includes(searchReferee.toLowerCase()) ||
+       athlete.lastName.toLowerCase().includes(searchReferee.toLowerCase()))
+    ) : athletes;
+    setFilteredReferees(filter);
+  }, [searchReferee, athletes]);
 
   const handleOpponentSelect = (athlete) => {
     setOpponent(athlete);
@@ -150,7 +177,7 @@ const Bouts = () => {
     }
     try {
       const response = await axios.post("https://2hkpzpjvfe.execute-api.us-east-1.amazonaws.com/develop/bout", {
-        challengerId: athleteId, // This needs to be the logged-in athlete's ID
+        challengerId: athleteId, 
         acceptorId: opponent.athleteId,
         refereeId: referee.athleteId,
         styleId: selectedStyle.styleId,
@@ -159,12 +186,12 @@ const Bouts = () => {
         cancelled: false,
       });
       if (response.status === 200) {
-        setSearchOpponent(''); // Clear the search input
-        setOpponent(null); // Clear the selected opponent
-        setReferee(null); // Clear the selected referee
-        setSelectedStyle(null); // Clear the selected style
-        setStyles([]); // Clear the styles list (assuming it's a multi-select input)
-        fetchBouts(); // Refresh bout list after creating a bout
+        setSearchOpponent(''); 
+        setOpponent(null); 
+        setReferee(null); 
+        setSelectedStyle(null); 
+        setStyles([]); 
+        fetchBouts();
       }
     } catch (error) {
       console.error('Error creating bout:', error);
@@ -173,69 +200,81 @@ const Bouts = () => {
   // Render the component
   return (
     <div className="challenge-screen-container main-content">
-      <h1>Challenge</h1>
-      {/* Dropdown for selecting styles */}
-      <div className="select-style">
-        <label htmlFor="style-select">Select Style:</label>
-        <select
-          id="style-select"
-          value={selectedStyle ? selectedStyle.styleId : ''}
-          onChange={(e) => {
-            const style = styles.find(style => style.styleId === parseInt(e.target.value));
-            setSelectedStyle(style);
-          }}
-        >
-          {styles?.map((style) => (
-            <option key={style.styleId} value={style.styleId}>
-              {style.styleName}
-            </option>
+      <p className="challenge-title">Challenge</p>
+      <div ref={searchRef} className="opponent-selection">
+      <input
+        type="text"
+        value={searchOpponent}
+        onChange={(e) => setSearchOpponent(e.target.value)}
+        placeholder="Search opponent"
+        className='search-opponent-input'
+      />
+      </div>
+      {searchOpponent && (
+        <div className="dropdown" ref={dropdownRef}>
+          {filteredAthletes.map((athlete) => (
+            <div
+              key={athlete.athleteId}
+              onClick={() => handleOpponentSelect(athlete)}
+              className="dropdown-item"
+            >
+              {athlete.firstName} {athlete.lastName} ({athlete.username})
+            </div>
           ))}
-        </select>
-      </div>
-      {/* Inputs and selection for opponent and referee */}
-      {/* Simplified for demonstration, assuming functions for updating and selecting are implemented */}
-      <div className="opponent-referee-selection">
-        <input
-          type="text"
-          placeholder="Search opponent"
-          value={searchOpponent}
-          onChange={(e) => setSearchOpponent(e.target.value)}
-        />
-        {/* Display filtered opponents based on search, similar for referees */}
-      </div>
-        <div className="opponent-list">
-            {searchOpponents(searchOpponent)?.map((athlete) => (
-                <button key={athlete.athleteId} onClick={() => handleOpponentSelect(athlete)}>
-                    {athlete.firstName} {athlete.lastName}
-                </button>
-            ))}
         </div>
-      {/* Display selected opponent and referee */}
-      {opponent && (
-        <p>Selected Opponent: {opponent.firstName} {opponent.lastName}</p>
       )}
-      <div className="opponent-referee-selection">
+      {opponent && (
+        <p className="selected-opponent">Selected Opponent: {opponent.firstName} {opponent.lastName}</p>
+      )}
+      <div ref={searchRef} className="referee-selection">
         <input
           type="text"
           placeholder="Search Referee"
           value={searchReferee}
           onChange={(e) => setSearchReferee(e.target.value)}
+          className='search-referee-input'
         />
-        {/* Display filtered opponents based on search, similar for referees */}
       </div>
-      <div className="opponent-list">
-            {searchOpponents(searchOpponent)?.map((athlete) => (
-                <button key={athlete.athleteId} onClick={() => handleRefereeSelect(athlete)}>
-                    {athlete.firstName} {athlete.lastName}
-                </button>
-            ))}
+      {searchReferee && (
+        <div ref={dropdownRef} className="dropdown">
+          {filteredReferees.map((athlete) => (
+            <div
+              key={athlete.athleteId}
+              onClick={() => handleRefereeSelect(athlete)}
+              className="dropdown-item"
+            >
+              {athlete.firstName} {athlete.lastName} ({athlete.username})
+            </div>
+          ))}
         </div>
-      {referee && (
-        <p>Selected Referee: {referee.firstName} {referee.lastName}</p>
       )}
-      {/* Button to create bout */}
-      <button onClick={createBout}>Propose Bout</button>
-      {/* List of pending bouts */}
+      {referee && (
+        <p className="selected-referee">Selected Referee: {referee.firstName} {referee.lastName}</p>
+      )}
+      {opponent && referee ? (
+        <div className="common-style-list">
+        {styles?.length === 0 && (
+            <p>No common styles found with selected opponent</p>
+        )}
+        {styles?.map((style) => (
+            <button
+            key={style.styleId}
+            className={`common-style ${selectedStyle?.styleId === style.styleId ? 'selected' : ''}`}
+            onClick={() => setSelectedStyle(style)}
+            value={style.styleId}
+            >
+            {style.styleName}
+            </button>
+        ))} </div>) : (
+        <div>
+            <p>Select an opponent and referee to see available styles</p>
+        </div>
+        )}
+        <button 
+            className="propose-bout-button"
+            onClick={createBout}>
+                Propose Bout
+        </button>
       <div className="pending-bouts">
         <h2>Pending Bouts</h2>
         {pendingBouts?.map((bout, index) => (
