@@ -30,8 +30,12 @@ function SignupAthlete() {
     };
 
     const handleStyleChange = (event) => {
-        const value = Array.from(event.target.selectedOptions, option => option.value);
-        setSelectedStyles(value);
+        const value = event.target.value;
+        if (selectedStyles.includes(value)) {
+            setSelectedStyles(selectedStyles.filter(styleId => styleId !== value));
+        } else {
+            setSelectedStyles([...selectedStyles, value]);
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -69,25 +73,80 @@ function SignupAthlete() {
     };
 
     return (
-        <div className="signup-container">
+        <div className="signup-container main-content">
+            <h2>Join as an Athlete</h2>
             <form onSubmit={handleSubmit}>
                 {/* Input fields for user information */}
-                <input name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" required />
-                <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" required />
-                <input name="username" value={formData.username} onChange={handleChange} placeholder="username" required />
-                <input name="birthDate" type="date" value={formData.birthDate} onChange={handleChange} placeholder="Birth Date" required />
-                <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
-                <input name="password" type="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
-                <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm Password" required />
+                <input 
+                    name="firstName" 
+                    value={formData.firstName} 
+                    onChange={handleChange} 
+                    placeholder="First Name" 
+                    required 
+                />
+                <input 
+                    name="lastName" 
+                    value={formData.lastName} 
+                    onChange={handleChange} 
+                    placeholder="Last Name" 
+                    required 
+                />
+                <input 
+                    name="username" 
+                    value={formData.username} 
+                    onChange={handleChange} 
+                    placeholder="username" 
+                    required 
+                />
+                <input 
+                    name="birthDate" 
+                    type="date" 
+                    value={formData.birthDate} 
+                    onChange={handleChange} 
+                    placeholder="Birth Date" 
+                    required 
+                />
+                <input 
+                    name="email" 
+                    type="email" 
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    placeholder="Email" r
+                    equired /
+                >
+                <input 
+                    name="password" 
+                    type="password" 
+                    value={formData.password} 
+                    onChange={handleChange} 
+                    placeholder="Password" 
+                    required 
+                />
+                <input 
+                    name="confirmPassword" 
+                    type="password" 
+                    value={formData.confirmPassword} 
+                    onChange={handleChange} 
+                    placeholder="Confirm Password" 
+                    required 
+                />
                 
                 {/* Multi-select dropdown for styles */}
-                <select multiple={true} value={selectedStyles} onChange={handleStyleChange}>
-                    {styles.map(style => (
-                        <option key={style.styleId} value={style.styleId}>{style.styleName}</option>
+                <h2 className='available-style-title'>Select your competition styles</h2>
+                <div className="style-list">
+                    {styles?.map(style => (
+                        <button
+                    key={style.styleId}
+                    className={`available-style ${selectedStyles.includes((style.styleId).toString()) ? 'selected' : ''}`}
+                    onClick={handleStyleChange}
+                    value={style.styleId}
+                    >
+                    {style.styleName}
+                    </button>
                     ))}
-                </select>
+                </div>
                 {error && <div className="error-message">{error}</div>}
-                <button type="submit">Sign Up</button>
+                <button className= "submit-athlete-signup" type="submit">Sign Up</button>
             </form>
         </div>
     );

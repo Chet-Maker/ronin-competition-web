@@ -1,5 +1,5 @@
 .main-content {
-    margin-top: 100px; /* Adjust based on the actual height of your banner */
+    margin-top: 120px; /* Adjust based on the actual height of your banner */
     font-family: Arial, sans-serif;
   }
 
@@ -13,13 +13,11 @@
 }
 
 .login-title {
-    font-family: Arial, sans-serif;
     font-size: 3em;
     margin-bottom: 0.5em;
 }
 
 .login-subtitle {
-    font-family: Arial, sans-serif;
     font-size: 1.5em;
     margin-bottom: 2em;
 }
@@ -203,6 +201,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 8px #ddd;
     height: 3em;
     width: 18em;
     border-radius: 8px;
@@ -211,7 +211,6 @@
 
   .search-opponent-input input {
     border: none;
-    font-family: Arial, sans-serif;
     border-radius: 8px;
   }
 
@@ -219,6 +218,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 8px #ddd;
     height: 3em;
     width: 18em;
     border-radius: 8px;
@@ -233,7 +234,8 @@
   .dropdown {
     position: absolute;
     background-color: #f9f9f9;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 8px #ddd;
     z-index: 1;
     border-radius: 8px;
     width: 17em;
@@ -244,21 +246,50 @@
   .dropdown-item {
     padding: 10px;
     cursor: pointer;
-    font-family: Arial, sans-serif;
   }
   
   .dropdown-item:hover {
-    background-color: #eee;
+    background-color: #010101;
+    color: white;
   }
 
   .common-style-list {
     display: flex;
     flex-wrap: wrap;
+    border: 1px solid #ccc;
+    padding-left: 1em;
+    box-shadow: 0px 0px 8px #ddd;
+    border-radius: 8px;
     gap: 10px; /* Adjust gap between buttons as needed */
+  }
+
+
+
+  .no-styles-text {
+    margin-top: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 8px #ddd;
+    color: #646464;
+    font-style: italic;
+  }
+
+  .bout-card {
+    background-color: #f5f5f5;
+    padding: 15px;
+    margin-bottom: 10px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
   .common-style {
-    border: 2px solid black;
+    border: 1px solid black;
     background-color: white;
     color: black;
     padding: 10px 20px; /* Adjust padding as needed */
@@ -276,16 +307,60 @@
     padding: 10px 20px; /* Adjust padding as needed */
     border-radius: 10px; /* Adjust for rounded edges */
     cursor: pointer;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover and select */
+    margin-bottom: 20px;
+    margin-top: 3em; 
+    height: 4em;
+    font-size: 16px;
+  }
+
+  .decision-athlete {
+    border: 2px solid black;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 20px; /* Adjust padding as needed */
+    border-radius: 10px; /* Adjust for rounded edges */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover and select */
+    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-right: 1.5em; 
+  }
+
+  .decision-athlete:hover {
+    background-color: black;
+    color: white;
+  }
+
+  .accept-button, .cancel-bout {
+    border: 2px solid black;
+    background-color: white;
+    color: black;
+    padding: 10px 20px; /* Adjust padding as needed */
+    border-radius: 10px; /* Adjust for rounded edges */
+    cursor: pointer;
+    margin-right: 3px;
     transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover and select */
     margin-bottom: 20px;
     margin-top: 10px; 
   }
 
-  .challenge-title {
-    font-size: 2em;
+  .decline-button {
+    border: 2px solid black;
+    background-color: white;
+    color: black;
+    padding: 10px 20px; /* Adjust padding as needed */
+    border-radius: 10px; /* Adjust for rounded edges */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover and select */
+    margin-bottom: 20px;
+    margin-top: 10px; 
+    margin-left: 3px;
   }
 
-  .incomplete-bout-title, .pending-bout-title {
+  .incomplete-bout-title, .pending-bout-title, .challenge-title {
     font-size: 1.4em;
   }
 
@@ -294,8 +369,136 @@
     color: white;
   }
   
-  .common-style:hover, .common-style.selected {
+  .common-style:hover, .common-style.selected, .accept-button:hover, .decline-button:hover, .cancel-bout:hover {
     background-color: black;
     color: white;
   }
+
+  .challenge-screen-container {
+    display: flex;
+    align-items: flex-start; 
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .challenge-screen-container-1 {
+    margin-left: 2em;
+    margin-top: 2em;
+    width: 30%;
+  }
+
+  .challenge-screen-container-2 {
+    margin-left: 3em;
+    margin-top: 2em;
+    width: 30%;
+  }
+
+  .challenge-screen-container-3 {
+    margin-top: 2em;
+    width: 30%;
+    
+  }
+
+  .challenge-screen-container > div {
+    width: 30%;
+    margin-bottom: 2em; /* Add some spacing between items when they stack */
+  }
+
+  @media (max-width: 834px) {
+    .challenge-screen-container > div {
+      width: 100%; /* Make each div take the full width of the container */
+    }
+  }
+
+  .signup-container {
+    margin-top: 10em;
+    margin-bottom: 10em;
+  }
+
+  .signup-container input {
+    display: block;
+    margin: 20px auto; /* Centering */
+    width: 30%; /* Adjust width as needed */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Padding inside the inputs */
+    border: 1px solid #ccc; /* Border color */
+}
+
+/* Responsive design consideration */
+@media screen and (max-width: 600px) {
+    .signup-container input {
+        width: 80%; /* More width on smaller screens */
+    }
+}
+
+.available-style {
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  padding: 10px 20px; /* Adjust padding as needed */
+  border-radius: 10px; /* Rounded edges */
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for interactions */
+  width: 20%; /* Let the width be as per content + padding */
+  margin: 20px auto; /* Center align and space out */
+  margin-top: 3em;
+  height: 3em;
+  font-size: 16px;
+}
+
+.available-style-title {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+}
+
+.style-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; /* Adjust gap between buttons as needed */
+
+}
+
+.available-style:hover, .available-style.selected {
+  background-color: black;
+  color: white;
+}
+
+.signup-container button[type="submit"] {
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  display: block;
+  width: 15%;
+  margin: 20px auto;
+  font-size: 16px;
+  margin-top: 3em;
+}
+
+.signup-container > Form {
+  width: 100%;
+}
   
+.signup-container button[type="submit"]:hover {
+  background-color: black;
+  color: white;
+}
+
+.submit-athlete-signup {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+
+}
+
+/* Responsive design consideration for the button */
+@media screen and (max-width: 600px) {
+  .signup-container button[type="submit"] {
+      width: 80%; /* More width on smaller screens */
+  }
+}
